@@ -26,10 +26,10 @@ public class Customer {
     private String phoneNumber;
 
     @Column(name = "FACE_IMAGE")
-    private byte[] faceImage;
+    private String faceImage;
 
     @Column(name = "FACE_FEATURE")
-    private byte[] faceFeature;
+    private String faceFeature;
 
     @ColumnDefault("0")
     @Column(name = "WARNING_COUNTER")

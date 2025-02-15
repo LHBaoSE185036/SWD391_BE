@@ -6,7 +6,9 @@ import com.swd.gym_face_id_access.model.Customer;
 import com.swd.gym_face_id_access.repository.CustomerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,6 +17,8 @@ import java.util.List;
 public class CustomerServiceImpl implements CustomerService {
 
     private final CustomerRepository customerRepository;
+
+    private final CloudinaryService cloudinaryService;
 
     @Override
     public List<CustomerResponse> getAllCustomer() {
@@ -35,4 +39,17 @@ public class CustomerServiceImpl implements CustomerService {
     public boolean addCustomer(CustomerRequest customerRequest) {
         return false;
     }
+
+    @Override
+    public void updateCustomerFaceImg(MultipartFile multipartFile, int customerId) throws IOException {
+        if (!customerRepository.existsById(customerId)) {
+            return;
+        }
+        String ImgUrl = cloudinaryService.uploadFile(multipartFile);
+        Customer customer = customerRepository.findById(customerId).get();
+        customer.setFaceImage(ImgUrl);
+        customerRepository.save(customer);
+    }
+
+
 }
