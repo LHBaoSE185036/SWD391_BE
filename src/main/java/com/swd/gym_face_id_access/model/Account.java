@@ -1,5 +1,6 @@
 package com.swd.gym_face_id_access.model;
 
+import com.swd.gym_face_id_access.model.Enum.Roles;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -23,4 +24,7 @@ public class Account {
     @Column(name = "STATUS", nullable = false)
     private Boolean status = false;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "ROLE", nullable = false)
+    private Roles role;
 }

@@ -1,5 +1,6 @@
 package com.swd.gym_face_id_access.configuration;
 
+import com.swd.gym_face_id_access.model.Enum.Roles;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
@@ -20,9 +21,10 @@ public class JwtUtil {
         return Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
     }
 
-    public String generateToken(String username) {
+    public String generateToken(String username, Roles roles) {
         return Jwts.builder()
-                .setSubject(username)
+                .setSubject(username) // Lưu username
+                .claim("role", roles.name())  // 🔹 Thêm role vào claims
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
@@ -45,5 +47,16 @@ public class JwtUtil {
                 .parseClaimsJws(token)
                 .getBody()
                 .getSubject();
+    }
+
+    public Roles extractRole(String token) {
+        String role = Jwts.parserBuilder()
+                .setSigningKey(getSigningKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .get("role", String.class);
+
+        return Roles.valueOf(role);
     }
 }
