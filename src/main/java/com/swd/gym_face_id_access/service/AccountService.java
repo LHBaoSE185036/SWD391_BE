@@ -8,4 +8,5 @@ public interface AccountService {
     String Login(String userName, String password);
 
     String Register(CreateAccountRequest createAccountRequest);
+
 }

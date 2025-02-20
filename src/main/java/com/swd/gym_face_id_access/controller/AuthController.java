@@ -5,6 +5,8 @@ import com.swd.gym_face_id_access.dto.response.ApiResponse;
 import com.swd.gym_face_id_access.service.AccountService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -32,4 +34,5 @@ public class AuthController {
                 .success(false)
                 .build());
     }
+
 }
