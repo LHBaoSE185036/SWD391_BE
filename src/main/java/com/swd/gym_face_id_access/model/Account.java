@@ -21,9 +21,6 @@ public class Account {
     @Column(name = "PASSWORD", nullable = false)
     private String password;
 
-    @Column(name = "EMAIL", nullable = false, unique = true)
-    private String email;
-
     @Column(name = "STATUS", nullable = false)
     private Boolean status = false;
 

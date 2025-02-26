@@ -15,10 +15,6 @@ public class Customer {
     @Column(name = "ID", nullable = false)
     private Integer id;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ACCOUNT_ID")
-    private Account account;
-
     @Column(name = "FULL_NAME", nullable = false)
     private String fullName;
 

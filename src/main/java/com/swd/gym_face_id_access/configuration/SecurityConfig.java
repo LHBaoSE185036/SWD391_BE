@@ -2,7 +2,6 @@ package com.swd.gym_face_id_access.configuration;
 
 import com.swd.gym_face_id_access.model.Account;
 import com.swd.gym_face_id_access.repository.AccountRepository;
-import com.swd.gym_face_id_access.service.OAuth2LoginSuccessHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -21,11 +20,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 public class SecurityConfig {
 
-    private final OAuth2LoginSuccessHandler loginSuccessHandler;
-
-    public SecurityConfig(OAuth2LoginSuccessHandler loginSuccessHandler) {
-        this.loginSuccessHandler = loginSuccessHandler;
-    }
 
 
     @Bean
@@ -63,11 +57,7 @@ public class SecurityConfig {
                         ).permitAll()
                         .requestMatchers("gym-face-id-access/api/auth/login").permitAll()
                         .requestMatchers("gym-face-id-access/api/account/create").permitAll()
-                        .requestMatchers("/", "/oauth2/**", "/login/**").permitAll()
                         .anyRequest().authenticated()
-                )
-                .oauth2Login(oauth2 -> oauth2
-                      .successHandler(loginSuccessHandler)
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);

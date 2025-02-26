@@ -1,27 +1,48 @@
 package com.swd.gym_face_id_access.service;
 
-import com.swd.gym_face_id_access.dto.request.CustomerRequest;
+import com.swd.gym_face_id_access.configuration.JwtUtil;
+import com.swd.gym_face_id_access.dto.request.CreateCustomerRequest;
+import com.swd.gym_face_id_access.dto.response.CustomerDetailResponse;
 import com.swd.gym_face_id_access.dto.response.CustomerResponse;
+import com.swd.gym_face_id_access.exception.CustomerNotFoundException;
+import com.swd.gym_face_id_access.exception.InvalidRequestException;
+import com.swd.gym_face_id_access.exception.NoTokenException;
+import com.swd.gym_face_id_access.exception.UnauthorizedException;
 import com.swd.gym_face_id_access.model.Customer;
+import com.swd.gym_face_id_access.model.Enum.Roles;
 import com.swd.gym_face_id_access.repository.CustomerRepository;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
 public class CustomerServiceImpl implements CustomerService {
 
+    private static final Logger log = LoggerFactory.getLogger(CustomerServiceImpl.class);
     private final CustomerRepository customerRepository;
 
     private final CloudinaryService cloudinaryService;
 
+    private final JwtUtil jwtUtil;
+
+    private final HttpServletRequest request;
+
     @Override
     public List<CustomerResponse> getAllCustomer() {
+
+        String token = jwtUtil.getCurrentToken(request);
+        log.info("token: {}", token);
+
         List<Customer> customers = customerRepository.findAll();
         List<CustomerResponse> customerResponses = new ArrayList<>();
         for (Customer customer : customers) {
@@ -36,12 +57,36 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public boolean addCustomer(CustomerRequest customerRequest) {
-        return false;
+    public String addCustomer(CreateCustomerRequest createCustomerRequest) {
+
+        String token = jwtUtil.getCurrentToken(request);
+
+        if(!jwtUtil.extractRole(token).equals(Roles.ADMIN)) {
+            throw new UnauthorizedException("Unauthorized access");
+        }
+
+        Customer customer = new Customer();
+        if (createCustomerRequest.getFullName() == null || createCustomerRequest.getPhoneNumber() == null) {
+            throw new InvalidRequestException("Some fields are missing or invalid");
+        }
+        customer.setFullName(createCustomerRequest.getFullName());
+        customer.setPhoneNumber(createCustomerRequest.getPhoneNumber());
+        customer.setEmail(createCustomerRequest.getEmail());
+        customer.setStatus("active");
+        customer.setWarningCounter(0);
+        customerRepository.save(customer);
+        return "Added Successfully";
     }
 
     @Override
     public void updateCustomerFaceImg(MultipartFile multipartFile, int customerId) throws IOException {
+
+        String token = jwtUtil.getCurrentToken(request);
+
+        if(!jwtUtil.extractRole(token).equals(Roles.ADMIN)) {
+            throw new UnauthorizedException("Unauthorized access");
+        }
+
         if (!customerRepository.existsById(customerId)) {
             return;
         }
@@ -49,6 +94,22 @@ public class CustomerServiceImpl implements CustomerService {
         Customer customer = customerRepository.findById(customerId).get();
         customer.setFaceImage(ImgUrl);
         customerRepository.save(customer);
+    }
+
+    @Override
+    public CustomerDetailResponse getCustomerDetail(int customerId) {
+        if(!customerRepository.existsById(customerId)) {
+            throw new CustomerNotFoundException("Customer not found");
+        }
+        Customer customer = customerRepository.findById(customerId).get();
+        CustomerDetailResponse customerDetailResponse = new CustomerDetailResponse();
+        customerDetailResponse.setFullName(customer.getFullName());
+        customerDetailResponse.setPhoneNumber(customer.getPhoneNumber());
+        customerDetailResponse.setEmail(customer.getEmail());
+        customerDetailResponse.setStatus(customer.getStatus());
+        customerDetailResponse.setFaceURL(customer.getFaceImage());
+        return customerDetailResponse;
+
     }
 
 
