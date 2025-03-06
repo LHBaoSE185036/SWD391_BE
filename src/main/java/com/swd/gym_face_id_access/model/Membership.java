@@ -52,4 +52,5 @@ public class Membership {
     @Column(name = "slot_time_type", nullable = false, length = 45)
     private String slotTimeType;
 
+
 }

@@ -2,6 +2,7 @@ package com.swd.gym_face_id_access.service;
 
 import com.swd.gym_face_id_access.configuration.JwtUtil;
 import com.swd.gym_face_id_access.dto.request.CreateCustomerRequest;
+import com.swd.gym_face_id_access.dto.request.UpdateCustomerRequest;
 import com.swd.gym_face_id_access.dto.response.CustomerDetailResponse;
 import com.swd.gym_face_id_access.dto.response.CustomerResponse;
 import com.swd.gym_face_id_access.exception.CustomerNotFoundException;
@@ -19,10 +20,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -41,12 +40,16 @@ public class CustomerServiceImpl implements CustomerService {
     public List<CustomerResponse> getAllCustomer() {
 
         String token = jwtUtil.getCurrentToken(request);
-        log.info("token: {}", token);
+
+        if(token == null) {
+            throw new NoTokenException("Missing JWT token");
+        }
 
         List<Customer> customers = customerRepository.findAll();
         List<CustomerResponse> customerResponses = new ArrayList<>();
         for (Customer customer : customers) {
             CustomerResponse customerResponse = new CustomerResponse();
+            customerResponse.setCustomerId(customer.getId());
             customerResponse.setFullName(customer.getFullName());
             customerResponse.setPhoneNumber(String.valueOf(customer.getPhoneNumber()));
             customerResponse.setEmail(customer.getEmail());
@@ -110,6 +113,33 @@ public class CustomerServiceImpl implements CustomerService {
         customerDetailResponse.setFaceURL(customer.getFaceImage());
         return customerDetailResponse;
 
+    }
+
+    @Override
+    public String updateCustomer(UpdateCustomerRequest updateCustomerRequest, int customerId) {
+
+        String token = jwtUtil.getCurrentToken(request);
+
+        if(!jwtUtil.extractRole(token).equals(Roles.ADMIN)) {
+            throw new UnauthorizedException("Unauthorized access");
+        }
+
+        if (!customerRepository.existsById(customerId)) {
+            throw new CustomerNotFoundException("Customer not found");
+        }
+
+        Customer customer = customerRepository.findById(customerId).get();
+        if(updateCustomerRequest.getFullName() != null && !updateCustomerRequest.getFullName().isEmpty()) {
+            customer.setFullName(updateCustomerRequest.getFullName());
+        }
+        if(updateCustomerRequest.getPhoneNumber() != null && !updateCustomerRequest.getPhoneNumber().isEmpty()) {
+            customer.setPhoneNumber(updateCustomerRequest.getPhoneNumber());
+        }
+        if(updateCustomerRequest.getEmail() != null && !updateCustomerRequest.getEmail().isEmpty()) {
+            customer.setEmail(updateCustomerRequest.getEmail());
+        }
+        customerRepository.save(customer);
+        return "Updated Successfully";
     }
 
 

@@ -2,15 +2,23 @@ package com.swd.gym_face_id_access.service;
 
 import com.swd.gym_face_id_access.configuration.JwtUtil;
 import com.swd.gym_face_id_access.dto.request.CreateAccountRequest;
+import com.swd.gym_face_id_access.dto.response.AccountDetailResponse;
+import com.swd.gym_face_id_access.dto.response.AccountResponse;
+import com.swd.gym_face_id_access.exception.AccountNotFoundException;
 import com.swd.gym_face_id_access.exception.AccountNotValidException;
 import com.swd.gym_face_id_access.exception.UnauthorizedException;
 import com.swd.gym_face_id_access.model.Account;
 import com.swd.gym_face_id_access.model.Enum.Roles;
+import com.swd.gym_face_id_access.model.Staff;
 import com.swd.gym_face_id_access.repository.AccountRepository;
+import com.swd.gym_face_id_access.repository.StaffRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 @Service
@@ -25,8 +33,10 @@ public class AccountServiceImpl implements AccountService {
 
     private final JwtUtil jwtUtil;
 
+    private final StaffRepository staffRepository;
+
     @Override
-    public String Login(String userName, String password) {
+    public String login(String userName, String password) {
         Account accountOptional = accountRepository.findByUserName(userName);
 
         if(accountOptional==null || !accountOptional.getStatus()) {
@@ -41,7 +51,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public String Register(CreateAccountRequest createAccountRequest) {
+    public String register(CreateAccountRequest createAccountRequest) {
 
         String token = jwtUtil.getCurrentToken(request);
 
@@ -63,6 +73,72 @@ public class AccountServiceImpl implements AccountService {
         accountRepository.save(account);
 
         return "Created Successfully";
+    }
+
+    @Override
+    public String deleteAccount(int accountId) {
+
+        String token = jwtUtil.getCurrentToken(request);
+
+        if(!jwtUtil.extractRole(token).equals(Roles.ADMIN)) {
+            throw new UnauthorizedException("Unauthorized access");
+        }
+        if(!accountRepository.existsById(accountId)) {
+            throw new AccountNotFoundException("Account is not found");
+        }
+
+        Account account = accountRepository.findById(accountId).get();
+        account.setStatus(false);
+        accountRepository.save(account);
+        return "Deleted Successfully";
+    }
+
+    @Override
+    public AccountDetailResponse getAccount(int accountId) {
+
+        String token = jwtUtil.getCurrentToken(request);
+
+        if(!jwtUtil.extractRole(token).equals(Roles.ADMIN)) {
+            throw new UnauthorizedException("Unauthorized access");
+        }
+        if(!accountRepository.existsById(accountId)) {
+            throw new AccountNotFoundException("Account is not found");
+        }
+
+        Account account = accountRepository.findById(accountId).get();
+        if(!account.getStatus()){
+            throw new AccountNotFoundException("Account is not found");
+        }
+        Staff staff =  staffRepository.findByAccountId(accountId);
+        AccountDetailResponse accountResponse = new AccountDetailResponse();
+        accountResponse.setUserName(account.getUserName());
+        accountResponse.setPassword(account.getPassword());
+        accountResponse.setStatus(account.getStatus());
+        accountResponse.setRole(account.getRole());
+        accountResponse.setStaffName(staff.getFullName());
+        return accountResponse;
+    }
+
+    @Override
+    public List<AccountResponse> getAllAccounts() {
+
+        String token = jwtUtil.getCurrentToken(request);
+
+        if(!jwtUtil.extractRole(token).equals(Roles.ADMIN)) {
+            throw new UnauthorizedException("Unauthorized access");
+        }
+
+        List<Account> accounts = accountRepository.findAll();
+        List<AccountResponse> accountResponses = new ArrayList<>();
+        for(Account account : accounts) {
+            AccountResponse accountResponse = new AccountResponse();
+            accountResponse.setAccountId(account.getId());
+            accountResponse.setUserName(account.getUserName());
+            accountResponse.setRole(account.getRole());
+            accountResponse.setStatus(account.getStatus());
+            accountResponses.add(accountResponse);
+        }
+        return accountResponses;
     }
 
 }

@@ -55,7 +55,7 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**"
                         ).permitAll()
-                        .requestMatchers("gym-face-id-access/api/auth/login").permitAll()
+                        .requestMatchers("gym-face-id-access/api/v1/auth/login").permitAll()
                         .requestMatchers("gym-face-id-access/api/account/create").permitAll()
                         .anyRequest().authenticated()
                 )

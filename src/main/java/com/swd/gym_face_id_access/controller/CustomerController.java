@@ -1,6 +1,7 @@
 package com.swd.gym_face_id_access.controller;
 
 import com.swd.gym_face_id_access.dto.request.CreateCustomerRequest;
+import com.swd.gym_face_id_access.dto.request.UpdateCustomerRequest;
 import com.swd.gym_face_id_access.dto.response.ApiResponse;
 import com.swd.gym_face_id_access.dto.response.CustomerDetailResponse;
 import com.swd.gym_face_id_access.dto.response.CustomerResponse;
@@ -35,7 +36,7 @@ public class CustomerController {
                 .build());
     }
 
-    @GetMapping("/customer/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<CustomerDetailResponse>> getCustomerById(@PathVariable int id) {
         try {
             return ResponseEntity.ok().body(ApiResponse.<CustomerDetailResponse>builder()
@@ -70,6 +71,20 @@ public class CustomerController {
                     .build());
         } catch (InvalidRequestException invalidRequestException) {
             throw new InvalidRequestException(invalidRequestException.getMessage());
+        }
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateCustomer(@PathVariable int id, @RequestBody UpdateCustomerRequest updateCustomerRequest) {
+        try{
+            return ResponseEntity.ok().body(ApiResponse.<String>builder()
+                    .errorCode(null)
+                    .message("success")
+                    .data(customerService.updateCustomer(updateCustomerRequest, id))
+                    .success(true)
+                    .build());
+        } catch (CustomerNotFoundException e) {
+            throw new CustomerNotFoundException(e.getMessage());
         }
     }
 }
