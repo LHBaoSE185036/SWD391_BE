@@ -19,4 +19,8 @@ public interface CustomerService {
     CustomerDetailResponse getCustomerDetail(int customerId);
 
     String updateCustomer(UpdateCustomerRequest updateCustomerRequest, int customerId);
+
+    CustomerResponse findByID(int customerId);
+
+    CustomerResponse findByFaceFeature(String faceFeature);
 }

@@ -142,5 +142,29 @@ public class CustomerServiceImpl implements CustomerService {
         return "Updated Successfully";
     }
 
+    @Override
+    public CustomerResponse findByID(int customerId) {
+        Customer customer = customerRepository.getById(customerId);
+        CustomerResponse customerResponse = new CustomerResponse();
+        customerResponse.setCustomerId(customer.getId());
+        customerResponse.setFullName(customer.getFullName());
+        customerResponse.setPhoneNumber(customer.getPhoneNumber());
+        customerResponse.setEmail(customer.getEmail());
+        customerResponse.setStatus(customer.getStatus());
+        return customerResponse;
+    }
+
+    @Override
+    public CustomerResponse findByFaceFeature(String faceFeature) {
+        Customer customer = customerRepository.getByFaceFeature(faceFeature);
+        CustomerResponse customerResponse = new CustomerResponse();
+        customerResponse.setCustomerId(customer.getId());
+        customerResponse.setFullName(customer.getFullName());
+        customerResponse.setPhoneNumber(customer.getPhoneNumber());
+        customerResponse.setEmail(customer.getEmail());
+        customerResponse.setStatus(customer.getStatus());
+        return customerResponse;
+    }
+
 
 }

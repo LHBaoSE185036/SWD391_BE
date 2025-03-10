@@ -1,6 +1,7 @@
 package com.swd.gym_face_id_access.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -18,5 +19,10 @@ public class CheckInLog {
 
     @Column(name = "CHECK_IN_TIME", nullable = false)
     private Instant checkInTime;
+
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "CUSTOMER_ID", nullable = false)
+    private Customer customer;
 
 }

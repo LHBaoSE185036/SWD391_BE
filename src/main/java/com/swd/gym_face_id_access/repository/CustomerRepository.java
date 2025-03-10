@@ -10,4 +10,6 @@ public interface CustomerRepository extends JpaRepository<Customer, Integer> {
     List<Customer> findAllByFaceFeatureIsNotNull();
 
     Customer getById(int id);
+
+    Customer getByFaceFeature(String faceFeature);
 }
