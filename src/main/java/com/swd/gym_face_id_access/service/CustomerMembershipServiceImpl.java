@@ -1,11 +1,22 @@
 package com.swd.gym_face_id_access.service;
 
+import com.swd.gym_face_id_access.configuration.JwtUtil;
 import com.swd.gym_face_id_access.dto.response.CustomerMembershipResponse;
+import com.swd.gym_face_id_access.exception.CustomerNotFoundException;
+import com.swd.gym_face_id_access.exception.MembershipNotFoundException;
+import com.swd.gym_face_id_access.exception.UnauthorizedException;
+import com.swd.gym_face_id_access.model.Customer;
 import com.swd.gym_face_id_access.model.CustomerMembership;
+import com.swd.gym_face_id_access.model.Enum.Roles;
+import com.swd.gym_face_id_access.model.Membership;
 import com.swd.gym_face_id_access.repository.CustomerMembershipRepository;
+import com.swd.gym_face_id_access.repository.CustomerRepository;
+import com.swd.gym_face_id_access.repository.MembershipRepository;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,6 +24,14 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CustomerMembershipServiceImpl implements CustomerMembershipService{
     private final CustomerMembershipRepository customerMembershipRepository;
+
+    private final JwtUtil jwtUtil;
+
+    private final CustomerRepository customerRepository;
+
+    private final MembershipRepository membershipRepository;
+
+    private final HttpServletRequest request;
 
     @Override
     public List<CustomerMembershipResponse> findActiveMemberships(int customerId) {
@@ -28,6 +47,45 @@ public class CustomerMembershipServiceImpl implements CustomerMembershipService{
             customerMembershipResponses.add(customerMembershipResponse);
         }
         return customerMembershipResponses;
+    }
+
+    @Override
+    public String regisCustomerMembership(int customerId, int membershipId) {
+        String token = jwtUtil.getCurrentToken(request);
+        Customer customer;
+        Membership membership ;
+        int tempTime;
+        int counter;
+        LocalDate startDate = LocalDate.now();
+        LocalDate endDate;
+
+        if(!jwtUtil.extractRole(token).equals(Roles.ADMIN)) {
+            throw new UnauthorizedException("Unauthorized access");
+        }
+        if(!customerRepository.existsById(customerId)) {
+            throw new CustomerNotFoundException("Customer is not found");
+        } else{
+            customer = customerRepository.findById(customerId).get();
+        }
+        if(!membershipRepository.existsById(membershipId)) {
+            throw new MembershipNotFoundException("Membership is not found");
+        } else{
+            membership = membershipRepository.findById(membershipId).get();
+            tempTime = membership.getDuration();
+            counter = membership.getTrainingDay();
+        }
+
+        endDate = startDate.plusMonths(tempTime);
+
+        CustomerMembership customerMembership = new CustomerMembership();
+        customerMembership.setCustomer(customer);
+        customerMembership.setMembership(membership);
+        customerMembership.setStartDate(startDate);
+        customerMembership.setEndDate(endDate);
+        customerMembership.setSessionCounter(counter);
+        customerMembershipRepository.save(customerMembership);
+
+        return "Registered Successfully";
     }
 
 

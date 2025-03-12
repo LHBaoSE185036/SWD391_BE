@@ -36,4 +36,8 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleMembershipNotFound(MembershipNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
     }
+    @ExceptionHandler(FaceNotFoundException.class)
+    public ResponseEntity<String> handleFaceNotFound(FaceNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+    }
 }

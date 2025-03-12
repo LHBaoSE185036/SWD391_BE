@@ -6,4 +6,6 @@ import java.util.List;
 
 public interface CustomerMembershipService {
     List<CustomerMembershipResponse> findActiveMemberships(int customerId);
+
+    String regisCustomerMembership(int customerId, int membershipId);
 }

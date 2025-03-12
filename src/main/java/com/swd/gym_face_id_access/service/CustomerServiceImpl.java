@@ -166,5 +166,67 @@ public class CustomerServiceImpl implements CustomerService {
         return customerResponse;
     }
 
+    @Override
+    public String banCustomer(int customerId) {
+        String token = jwtUtil.getCurrentToken(request);
+
+        if(!jwtUtil.extractRole(token).equals(Roles.ADMIN)) {
+            throw new UnauthorizedException("Unauthorized access");
+        }
+
+        if(!customerRepository.existsById(customerId)) {
+            throw new CustomerNotFoundException("Customer not found");
+        }
+
+        Customer customer = customerRepository.findById(customerId).get();
+        customer.setStatus("banned");
+        customerRepository.save(customer);
+        return "Banned!";
+    }
+
+    @Override
+    public String warningCustomer(int customerId) {
+        String token = jwtUtil.getCurrentToken(request);
+
+        if(!jwtUtil.extractRole(token).equals(Roles.ADMIN)) {
+            throw new UnauthorizedException("Unauthorized access");
+        }
+
+        if(!customerRepository.existsById(customerId)) {
+            throw new CustomerNotFoundException("Customer not found");
+        }
+
+        Customer customer = customerRepository.findById(customerId).get();
+        int warningCounter = customer.getWarningCounter() + 1;
+        customer.setWarningCounter(warningCounter);
+        if(warningCounter >= 5) {
+            customer.setStatus("banned");
+        }
+        customerRepository.save(customer);
+        return "Successfully";
+    }
+
+    @Override
+    public List<CustomerResponse> searchCustomer(String name) {
+        String token = jwtUtil.getCurrentToken(request);
+
+        if(!jwtUtil.extractRole(token).equals(Roles.ADMIN)) {
+            throw new UnauthorizedException("Unauthorized access");
+        }
+
+        List<Customer> customers = customerRepository.findByName(name);
+        List<CustomerResponse> customerResponses = new ArrayList<>();
+        for (Customer customer : customers) {
+            CustomerResponse customerResponse = new CustomerResponse();
+            customerResponse.setCustomerId(customer.getId());
+            customerResponse.setFullName(customer.getFullName());
+            customerResponse.setPhoneNumber(customer.getPhoneNumber());
+            customerResponse.setEmail(customer.getEmail());
+            customerResponse.setStatus(customer.getStatus());
+            customerResponses.add(customerResponse);
+        }
+        return customerResponses;
+    }
+
 
 }

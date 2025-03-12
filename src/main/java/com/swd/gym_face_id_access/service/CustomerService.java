@@ -20,6 +20,12 @@ public interface CustomerService {
 
     String updateCustomer(UpdateCustomerRequest updateCustomerRequest, int customerId);
 
+    String banCustomer(int customerId);
+
+    String warningCustomer(int customerId);
+
+    List<CustomerResponse> searchCustomer(String name);
+
     CustomerResponse findByID(int customerId);
 
     CustomerResponse findByFaceFeature(String faceFeature);

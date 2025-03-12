@@ -12,7 +12,7 @@ import com.swd.gym_face_id_access.dto.response.ApiResponse;
 
 import java.io.IOException;
 
-@RequestMapping("/rekognition")
+@RequestMapping("/gym-face-id-access/api/v1/rekognition")
 @RestController
 @RequiredArgsConstructor(onConstructor_ = {@Autowired})
 public class RekognitionController {

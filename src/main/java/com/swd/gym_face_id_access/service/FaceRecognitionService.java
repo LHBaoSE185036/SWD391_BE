@@ -3,6 +3,7 @@ import com.swd.gym_face_id_access.dto.response.CheckInResponse;
 import com.swd.gym_face_id_access.dto.response.CustomerMembershipResponse;
 import com.swd.gym_face_id_access.dto.response.CustomerResponse;
 import com.swd.gym_face_id_access.dto.response.FaceRecognitionResponse;
+import com.swd.gym_face_id_access.exception.FaceNotFoundException;
 import com.swd.gym_face_id_access.model.CheckInLog;
 import com.swd.gym_face_id_access.model.Customer;
 import com.swd.gym_face_id_access.model.CustomerMembership;
@@ -77,7 +78,7 @@ public class FaceRecognitionService {
                 .collectionId("swd_facerecognition_collection")
                 .image(image)
                 .maxFaces(1)
-                .faceMatchThreshold(90F)
+                .faceMatchThreshold(98F)
                 .build();
 
         try {
@@ -127,10 +128,7 @@ public class FaceRecognitionService {
             // check if person scanned is a member
             FaceRecognitionResponse frs = findCustomerByFace(file);
             if(frs == null){
-                cr.setCheckInResult(CHECK_IN_FAILED);
-                cr.setMessage("Cannot recognize member");
-                cr.setIsSuccess(false);
-                return cr;
+                throw new FaceNotFoundException("Face is not recognize");
             }
             // check for active memberships ( is still in date and session > 0 )
             List<CustomerMembershipResponse> activeCustomerMemberships =

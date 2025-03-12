@@ -87,4 +87,42 @@ public class CustomerController {
             throw new CustomerNotFoundException(e.getMessage());
         }
     }
+
+    @PutMapping("/ban/{id}")
+    public ResponseEntity<?> banCustomer(@PathVariable int id) {
+        try{
+            return ResponseEntity.ok().body(ApiResponse.<String>builder()
+                    .errorCode(null)
+                    .message("success")
+                    .data(customerService.banCustomer(id))
+                    .success(true)
+                    .build());
+        } catch (CustomerNotFoundException e) {
+            throw new CustomerNotFoundException(e.getMessage());
+        }
+    }
+
+    @PutMapping("/warning/{id}")
+    public ResponseEntity<?> warningCustomer(@PathVariable int id) {
+        try{
+            return ResponseEntity.ok().body(ApiResponse.<String>builder()
+                    .errorCode(null)
+                    .message("success")
+                    .data(customerService.warningCustomer(id))
+                    .success(true)
+                    .build());
+        } catch (CustomerNotFoundException e) {
+            throw new CustomerNotFoundException(e.getMessage());
+        }
+    }
+
+    @GetMapping("/search/{name}")
+    public ResponseEntity<ApiResponse<List<CustomerResponse>>> searchCustomer(@PathVariable String name) {
+        return ResponseEntity.ok().body(ApiResponse.<List<CustomerResponse>>builder()
+                .errorCode(null)
+                .message("success")
+                .data(customerService.searchCustomer(name))
+                .success(true)
+                .build());
+    }
 }
