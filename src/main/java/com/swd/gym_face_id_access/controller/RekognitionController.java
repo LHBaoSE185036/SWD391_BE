@@ -74,4 +74,24 @@ public class RekognitionController {
         }
     }
 
+    @PostMapping("/check-out")
+    public ResponseEntity<ApiResponse<CheckOutResponse>> checkOut(@RequestParam("file") MultipartFile file,
+                                                                HttpServletRequest request) {
+
+        System.out.println("Content Type: " + request.getContentType());
+        System.out.println("Is Multipart: " + (request.getContentType() != null && request.getContentType().contains("multipart/form-data")));
+
+
+        try {
+            CheckOutResponse response = faceRecognitionService.customerCheckOut(file);
+            return ResponseEntity.ok().body(ApiResponse.<CheckOutResponse>builder()
+                    .errorCode(null)
+                    .message("success")
+                    .data(response)
+                    .success(true)
+                    .build());
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
+    }
 }

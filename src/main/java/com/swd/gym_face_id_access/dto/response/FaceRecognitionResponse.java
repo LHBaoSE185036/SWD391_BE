@@ -9,4 +9,5 @@ public class FaceRecognitionResponse {
     private String phoneNumber;
     private String email;
     private String status;
+    private Boolean present_status;
 }

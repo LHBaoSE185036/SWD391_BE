@@ -1,8 +1,5 @@
 package com.swd.gym_face_id_access.service;
-import com.swd.gym_face_id_access.dto.response.CheckInResponse;
-import com.swd.gym_face_id_access.dto.response.CustomerMembershipResponse;
-import com.swd.gym_face_id_access.dto.response.CustomerResponse;
-import com.swd.gym_face_id_access.dto.response.FaceRecognitionResponse;
+import com.swd.gym_face_id_access.dto.response.*;
 import com.swd.gym_face_id_access.exception.FaceNotFoundException;
 import com.swd.gym_face_id_access.model.CheckInLog;
 import com.swd.gym_face_id_access.model.Customer;
@@ -43,8 +40,14 @@ public class FaceRecognitionService {
     private final CheckInLogRepository checkinLogRepository;
 
     private final String CHECK_IN_SUCCESS = "Success";
+    private final String CHECK_IN_RETURN = "Rechecked";
     private final String CHECK_IN_FAILED = "Failed";
     private final String CHECK_IN_ERROR = "ERROR";
+
+    private final String CHECK_OUT_SUCCESS = "Success";
+    private final String CHECK_OUT_FAILED = "Failed";
+    private final String CHECK_OUT_ERROR = "ERROR";
+
     private final CheckInLogRepository checkInLogRepository;
 
     @Value("${spring.cloud.aws.s3.bucket}")
@@ -90,15 +93,15 @@ public class FaceRecognitionService {
                 System.out.println("Found face ID: " + faceId);
 
                 // Find customer by face ID
-                CustomerResponse customer = findCustomerByFaceID(faceId);
+                Customer customer = findCustomerByFaceID(faceId);
 
                 FaceRecognitionResponse frs = new FaceRecognitionResponse();
-                frs.setCustomerId(customer.getCustomerId());
+                frs.setCustomerId(customer.getId());
                 frs.setFullName(customer.getFullName());
                 frs.setPhoneNumber(customer.getPhoneNumber());
                 frs.setEmail(customer.getEmail());
                 frs.setStatus(customer.getStatus());
-
+                frs.setPresent_status(customer.getPresentStatus());
                 return frs;
             }
 
@@ -114,8 +117,8 @@ public class FaceRecognitionService {
             return null;
         }
     }
-    public CustomerResponse findCustomerByFaceID(String faceId) {
-        return customerService.findByFaceFeature(faceId);
+    public Customer findCustomerByFaceID(String faceId) {
+        return customerRepository.getByFaceFeature(faceId);
     }
 
     public CheckInResponse customerCheckIn(MultipartFile file)  throws IOException{
@@ -130,6 +133,15 @@ public class FaceRecognitionService {
             if(frs == null){
                 throw new FaceNotFoundException("Face is not recognize");
             }
+
+            //Check if customer has already checked in (present_status = true)
+            if(frs.getPresent_status()){
+                cr.setCheckInResult(CHECK_IN_RETURN);
+                cr.setMessage("Member has already checked in");
+                cr.setIsSuccess(true);
+                return cr;
+            }
+
             // check for active memberships ( is still in date and session > 0 )
             List<CustomerMembershipResponse> activeCustomerMemberships =
                     customerMembershipService.findActiveMemberships(frs.getCustomerId());
@@ -159,6 +171,10 @@ public class FaceRecognitionService {
             checkInLog.setCheckInTime(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant());
             checkInLogRepository.save(checkInLog);
 
+            // Set customer's present_status to true
+            customer.setPresentStatus(true);
+            customerRepository.save(customer);
+
             cr.setCheckInResult(CHECK_IN_SUCCESS);
             cr.setMessage("Check in successfully!");
             cr.setIsSuccess(true);
@@ -167,6 +183,43 @@ public class FaceRecognitionService {
         }catch(Exception e){
             System.out.println("Error during check in " + e.getMessage());
             cr.setCheckInResult(CHECK_IN_ERROR);
+            cr.setIsSuccess(false);
+            return cr;
+        }
+    }
+
+    public CheckOutResponse customerCheckOut(MultipartFile file)  throws IOException{
+        if (file == null) {
+            throw new IllegalArgumentException("File cannot be null");
+        }
+
+        CheckOutResponse cr = new CheckOutResponse();
+        try{
+            // check if person scanned is a member
+            FaceRecognitionResponse frs = findCustomerByFace(file);
+            if(frs == null){
+                throw new FaceNotFoundException("Face is not recognize");
+            }
+            //Check if customer has already checked in (present_status = true)
+            if(frs.getPresent_status()){
+                Customer customer = customerRepository.getById(frs.getCustomerId());
+                customer.setPresentStatus(false);
+                customerRepository.save(customer);
+
+                cr.setCheckOutResult(CHECK_OUT_SUCCESS);
+                cr.setMessage("Checked out successfully!");
+                cr.setIsSuccess(true);
+                return cr;
+            }else{
+                cr.setCheckOutResult(CHECK_OUT_FAILED);
+                cr.setMessage("Checkout failure: Customer has not checked in!");
+                cr.setIsSuccess(false);
+                return cr;
+            }
+
+        }catch(Exception e){
+            System.out.println("Error during check out " + e.getMessage());
+            cr.setCheckOutResult(CHECK_OUT_ERROR);
             cr.setIsSuccess(false);
             return cr;
         }
