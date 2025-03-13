@@ -125,4 +125,14 @@ public class CustomerController {
                 .success(true)
                 .build());
     }
+
+    @GetMapping("/in-gym")
+    public ResponseEntity<ApiResponse<List<CustomerResponse>>> getInGym() {
+        return ResponseEntity.ok().body(ApiResponse.<List<CustomerResponse>>builder()
+                .errorCode(null)
+                .message("success")
+                .data(customerService.getCustomerInGym())
+                .success(true)
+                .build());
+    }
 }

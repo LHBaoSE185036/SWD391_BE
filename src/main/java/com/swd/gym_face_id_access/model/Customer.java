@@ -38,4 +38,8 @@ public class Customer {
     @Column(name = "EMAIL", length = 50)
     private String email;
 
+    @ColumnDefault("b'0'")
+    @Column(name = "present_status")
+    private Boolean presentStatus;
+
 }

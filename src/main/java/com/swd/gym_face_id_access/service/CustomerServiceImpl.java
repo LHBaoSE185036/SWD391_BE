@@ -167,11 +167,33 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
+    public List<CustomerResponse> getCustomerInGym() {
+        String token = jwtUtil.getCurrentToken(request);
+
+        if(token == null) {
+            throw new NoTokenException("Missing JWT token");
+        }
+
+        List<Customer> customers = customerRepository.findByPresentStatus();
+        List<CustomerResponse> customerResponses = new ArrayList<>();
+        for(Customer customer : customers) {
+            CustomerResponse customerResponse = new CustomerResponse();
+            customerResponse.setCustomerId(customer.getId());
+            customerResponse.setFullName(customer.getFullName());
+            customerResponse.setPhoneNumber(customer.getPhoneNumber());
+            customerResponse.setEmail(customer.getEmail());
+            customerResponse.setStatus(customer.getStatus());
+            customerResponses.add(customerResponse);
+        }
+        return customerResponses;
+    }
+
+    @Override
     public String banCustomer(int customerId) {
         String token = jwtUtil.getCurrentToken(request);
 
-        if(!jwtUtil.extractRole(token).equals(Roles.ADMIN)) {
-            throw new UnauthorizedException("Unauthorized access");
+        if(token == null) {
+            throw new NoTokenException("Missing JWT token");
         }
 
         if(!customerRepository.existsById(customerId)) {

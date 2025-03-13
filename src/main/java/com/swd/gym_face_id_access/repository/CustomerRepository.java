@@ -15,4 +15,7 @@ public interface CustomerRepository extends JpaRepository<Customer, Integer> {
     List<Customer> findByName(String name);
 
     Customer getByFaceFeature(String faceFeature);
+
+    @Query("select c from Customer c where c.presentStatus = true")
+    List<Customer> findByPresentStatus();
 }

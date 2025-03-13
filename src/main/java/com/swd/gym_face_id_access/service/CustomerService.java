@@ -29,4 +29,6 @@ public interface CustomerService {
     CustomerResponse findByID(int customerId);
 
     CustomerResponse findByFaceFeature(String faceFeature);
+
+    List<CustomerResponse> getCustomerInGym();
 }
