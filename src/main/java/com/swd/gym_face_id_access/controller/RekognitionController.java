@@ -1,7 +1,9 @@
 package com.swd.gym_face_id_access.controller;
 
 import com.swd.gym_face_id_access.dto.response.*;
+import com.swd.gym_face_id_access.service.CustomerService;
 import com.swd.gym_face_id_access.service.FaceRecognitionService;
+import com.swd.gym_face_id_access.service.SseService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +19,10 @@ import java.io.IOException;
 @RequiredArgsConstructor(onConstructor_ = {@Autowired})
 public class RekognitionController {
     private final FaceRecognitionService faceRecognitionService;
+
+    private final CustomerService customerService;
+
+    private final SseService sseService;
 
     @PostMapping("/register/{customerID}")
     public ResponseEntity<String> uploadFile(@RequestParam("file") MultipartFile file, @PathVariable("customerID") int customerID) {
@@ -63,6 +69,8 @@ public class RekognitionController {
 
         try {
             CheckInResponse response = faceRecognitionService.customerCheckIn(file);
+
+            sseService.sendEvent(customerService.getCustomerInGym());
             return ResponseEntity.ok().body(ApiResponse.<CheckInResponse>builder()
                     .errorCode(null)
                     .message("success")
@@ -84,6 +92,7 @@ public class RekognitionController {
 
         try {
             CheckOutResponse response = faceRecognitionService.customerCheckOut(file);
+            sseService.sendEvent(customerService.getCustomerInGym());
             return ResponseEntity.ok().body(ApiResponse.<CheckOutResponse>builder()
                     .errorCode(null)
                     .message("success")

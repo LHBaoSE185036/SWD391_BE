@@ -1,13 +1,12 @@
 package com.swd.gym_face_id_access.controller;
 
+import com.swd.gym_face_id_access.dto.request.CreateStaffRequest;
 import com.swd.gym_face_id_access.dto.response.ApiResponse;
 import com.swd.gym_face_id_access.dto.response.StaffResponse;
 import com.swd.gym_face_id_access.service.StaffService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -26,5 +25,25 @@ public class StaffController {
                             .success(true)
                     .build());
 
+    }
+
+    @PostMapping("/staff")
+    public ResponseEntity<ApiResponse<String>> addStaff(@RequestBody CreateStaffRequest createStaffRequest) {
+        return ResponseEntity.ok().body(ApiResponse.<String>builder()
+                        .errorCode(null)
+                        .message("Success")
+                        .data(staffService.addStaff(createStaffRequest))
+                        .success(true)
+                .build());
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse<String>> deleteStaff(@PathVariable int id) {
+        return ResponseEntity.ok().body(ApiResponse.<String>builder()
+                .errorCode(null)
+                .message("Success")
+                .data(staffService.disableStaff(id))
+                .success(true)
+                .build());
     }
 }

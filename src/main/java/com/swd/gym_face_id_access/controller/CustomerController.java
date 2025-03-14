@@ -135,4 +135,14 @@ public class CustomerController {
                 .success(true)
                 .build());
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteCustomer(@PathVariable int id) {
+        return ResponseEntity.ok().body(ApiResponse.<String>builder()
+                .errorCode(null)
+                .message("success")
+                .data(customerService.deleteCustomer(id))
+                .success(true)
+                .build());
+    }
 }

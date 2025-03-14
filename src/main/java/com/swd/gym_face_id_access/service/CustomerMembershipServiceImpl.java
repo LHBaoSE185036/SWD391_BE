@@ -4,6 +4,7 @@ import com.swd.gym_face_id_access.configuration.JwtUtil;
 import com.swd.gym_face_id_access.dto.response.CustomerMembershipResponse;
 import com.swd.gym_face_id_access.exception.CustomerNotFoundException;
 import com.swd.gym_face_id_access.exception.MembershipNotFoundException;
+import com.swd.gym_face_id_access.exception.NoTokenException;
 import com.swd.gym_face_id_access.exception.UnauthorizedException;
 import com.swd.gym_face_id_access.model.Customer;
 import com.swd.gym_face_id_access.model.CustomerMembership;
@@ -86,6 +87,67 @@ public class CustomerMembershipServiceImpl implements CustomerMembershipService{
         customerMembershipRepository.save(customerMembership);
 
         return "Registered Successfully";
+    }
+
+    @Override
+    public String deleteCustomerMembership(int id) {
+        String token = jwtUtil.getCurrentToken(request);
+
+        if(token == null) {
+            throw new NoTokenException("Missing JWT token");
+        }
+
+        if(!customerMembershipRepository.existsById(id)) {
+            throw new MembershipNotFoundException("Membership is not found");
+        }
+
+        customerMembershipRepository.deleteById(id);
+
+        return "Deleted Successfully";
+    }
+
+    @Override
+    public List<CustomerMembershipResponse> getAllMemberships() {
+        String token = jwtUtil.getCurrentToken(request);
+
+        if(token == null) {
+            throw new NoTokenException("Missing JWT token");
+        }
+
+        List<CustomerMembership>  customerMemberships = customerMembershipRepository.findAll();
+        List<CustomerMembershipResponse> customerMembershipResponses = new ArrayList<>();
+        for (CustomerMembership cm : customerMemberships) {
+            CustomerMembershipResponse customerMembershipResponse = new CustomerMembershipResponse();
+            customerMembershipResponse.setId(cm.getId());
+            customerMembershipResponse.setCustomerId(cm.getCustomer().getId());
+            customerMembershipResponse.setStartDate(cm.getStartDate());
+            customerMembershipResponse.setEndDate(cm.getEndDate());
+            customerMembershipResponse.setSessionCounter(cm.getSessionCounter());
+            customerMembershipResponses.add(customerMembershipResponse);
+        }
+        return customerMembershipResponses;
+    }
+
+    @Override
+    public String checkOutManually(int customerId) {
+        String token = jwtUtil.getCurrentToken(request);
+
+        if(token == null) {
+            throw new NoTokenException("Missing JWT token");
+        }
+        if(!customerMembershipRepository.existsById(customerId)) {
+            throw new MembershipNotFoundException("Membership is not found");
+        }
+        if(!customerRepository.existsById(customerId)) {
+            throw new CustomerNotFoundException("Customer is not found");
+        }
+
+        Customer customer = customerRepository.findById(customerId).get();
+        if(!customer.getPresentStatus()){
+            return "Customer is not in the gym! Please check again";
+        }
+        customer.setPresentStatus(false);
+        return "Checked  out";
     }
 
 

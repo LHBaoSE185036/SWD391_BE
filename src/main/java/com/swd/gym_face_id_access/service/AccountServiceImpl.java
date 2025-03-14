@@ -14,6 +14,9 @@ import com.swd.gym_face_id_access.repository.AccountRepository;
 import com.swd.gym_face_id_access.repository.StaffRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -94,6 +97,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
+    @CachePut(value = "accounts", key = "accountId")
     public AccountDetailResponse getAccount(int accountId) {
 
         String token = jwtUtil.getCurrentToken(request);
@@ -120,6 +124,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
+    @Cacheable(value = "accounts")
     public List<AccountResponse> getAllAccounts() {
 
         String token = jwtUtil.getCurrentToken(request);
@@ -127,6 +132,7 @@ public class AccountServiceImpl implements AccountService {
         if(!jwtUtil.extractRole(token).equals(Roles.ADMIN)) {
             throw new UnauthorizedException("Unauthorized access");
         }
+
 
         List<Account> accounts = accountRepository.findAll();
         List<AccountResponse> accountResponses = new ArrayList<>();

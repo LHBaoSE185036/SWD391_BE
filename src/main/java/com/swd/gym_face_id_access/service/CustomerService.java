@@ -31,4 +31,6 @@ public interface CustomerService {
     CustomerResponse findByFaceFeature(String faceFeature);
 
     List<CustomerResponse> getCustomerInGym();
+
+    String deleteCustomer(int customerId);
 }

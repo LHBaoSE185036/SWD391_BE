@@ -189,6 +189,27 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
+    public String deleteCustomer(int customerId) {
+        String token = jwtUtil.getCurrentToken(request);
+
+        if(token == null) {
+            throw new NoTokenException("Missing JWT token");
+        }
+
+        if(!jwtUtil.extractRole(token).equals(Roles.ADMIN)) {
+            throw new UnauthorizedException("Unauthorized access");
+        }
+
+        if(!customerRepository.existsById(customerId)) {
+            throw new CustomerNotFoundException("Customer not found");
+        }
+        Customer customer = customerRepository.findById(customerId).get();
+        customer.setStatus("inactive");
+        customerRepository.save(customer);
+        return "Deleted Successfully";
+    }
+
+    @Override
     public String banCustomer(int customerId) {
         String token = jwtUtil.getCurrentToken(request);
 
