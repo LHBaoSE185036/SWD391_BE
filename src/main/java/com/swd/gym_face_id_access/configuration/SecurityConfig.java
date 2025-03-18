@@ -56,7 +56,7 @@ public class SecurityConfig {
                                 "/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**"
                         ).permitAll()
                         .requestMatchers("gym-face-id-access/api/v1/auth/login").permitAll()
-                        .requestMatchers("gym-face-id-access/api/v1/sse/list-check-in-customer").permitAll()
+                        .requestMatchers("gym-face-id-access/api/v1/rekognition/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
