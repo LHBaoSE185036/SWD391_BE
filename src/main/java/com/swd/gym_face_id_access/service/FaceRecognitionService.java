@@ -33,12 +33,11 @@ public class FaceRecognitionService {
 
     private final S3Client s3Client;
     private final RekognitionClient rekognitionClient;
-    private final CustomerService customerService;
+    private final CustomerServiceImpl customerService;
     private final CustomerRepository customerRepository;
     private final CustomerMembershipService customerMembershipService;
     private final CustomerMembershipRepository customerMembershipRepository;
     private final CheckInLogRepository checkinLogRepository;
-
     private final CloudinaryService cloudinaryService;
 
     private final String CHECK_IN_SUCCESS = "Success";
@@ -182,6 +181,8 @@ public class FaceRecognitionService {
             customer.setPresentStatus(true);
             customerRepository.save(customer);
 
+            customerService.notifyClients();
+
             cr.setCheckInResult(CHECK_IN_SUCCESS);
             cr.setMessage("Check in successfully!");
             cr.setIsSuccess(true);
@@ -212,6 +213,8 @@ public class FaceRecognitionService {
                 Customer customer = customerRepository.getById(frs.getCustomerId());
                 customer.setPresentStatus(false);
                 customerRepository.save(customer);
+
+                customerService.notifyClients();
 
                 cr.setCheckOutResult(CHECK_OUT_SUCCESS);
                 cr.setMessage("Checked out successfully!");
