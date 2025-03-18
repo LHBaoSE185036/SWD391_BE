@@ -39,6 +39,8 @@ public class FaceRecognitionService {
     private final CustomerMembershipRepository customerMembershipRepository;
     private final CheckInLogRepository checkinLogRepository;
 
+    private final CloudinaryService cloudinaryService;
+
     private final String CHECK_IN_SUCCESS = "Success";
     private final String CHECK_IN_RETURN = "Rechecked";
     private final String CHECK_IN_FAILED = "Failed";
@@ -67,6 +69,11 @@ public class FaceRecognitionService {
                 .build();
 
         s3Client.putObject(putObjectRequest, RequestBody.fromBytes(file.getBytes()));
+
+        String ImgUrl = cloudinaryService.uploadFile(file);
+        Customer customer = customerRepository.findById(customerID).get();
+        customer.setFaceImage(ImgUrl);
+        customerRepository.save(customer);
 
         return key;
     }

@@ -6,6 +6,7 @@ import com.swd.gym_face_id_access.dto.response.ApiResponse;
 import com.swd.gym_face_id_access.dto.response.CustomerDetailResponse;
 import com.swd.gym_face_id_access.dto.response.CustomerResponse;
 
+import com.swd.gym_face_id_access.dto.response.CustomerResponseWithCount;
 import com.swd.gym_face_id_access.exception.CustomerNotFoundException;
 import com.swd.gym_face_id_access.exception.InvalidRequestException;
 import com.swd.gym_face_id_access.service.CustomerService;
@@ -127,8 +128,8 @@ public class CustomerController {
     }
 
     @GetMapping("/in-gym")
-    public ResponseEntity<ApiResponse<List<CustomerResponse>>> getInGym() {
-        return ResponseEntity.ok().body(ApiResponse.<List<CustomerResponse>>builder()
+    public ResponseEntity<ApiResponse<CustomerResponseWithCount>> getInGym() {
+        return ResponseEntity.ok().body(ApiResponse.<CustomerResponseWithCount>builder()
                 .errorCode(null)
                 .message("success")
                 .data(customerService.getCustomerInGym())

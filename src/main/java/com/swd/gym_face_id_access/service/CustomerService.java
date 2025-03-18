@@ -4,6 +4,7 @@ import com.swd.gym_face_id_access.dto.request.CreateCustomerRequest;
 import com.swd.gym_face_id_access.dto.request.UpdateCustomerRequest;
 import com.swd.gym_face_id_access.dto.response.CustomerDetailResponse;
 import com.swd.gym_face_id_access.dto.response.CustomerResponse;
+import com.swd.gym_face_id_access.dto.response.CustomerResponseWithCount;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -30,7 +31,7 @@ public interface CustomerService {
 
     CustomerResponse findByFaceFeature(String faceFeature);
 
-    List<CustomerResponse> getCustomerInGym();
+    CustomerResponseWithCount getCustomerInGym();
 
     String deleteCustomer(int customerId);
 }

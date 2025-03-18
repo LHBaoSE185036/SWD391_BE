@@ -5,6 +5,7 @@ import com.swd.gym_face_id_access.dto.request.CreateCustomerRequest;
 import com.swd.gym_face_id_access.dto.request.UpdateCustomerRequest;
 import com.swd.gym_face_id_access.dto.response.CustomerDetailResponse;
 import com.swd.gym_face_id_access.dto.response.CustomerResponse;
+import com.swd.gym_face_id_access.dto.response.CustomerResponseWithCount;
 import com.swd.gym_face_id_access.exception.CustomerNotFoundException;
 import com.swd.gym_face_id_access.exception.InvalidRequestException;
 import com.swd.gym_face_id_access.exception.NoTokenException;
@@ -167,7 +168,7 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public List<CustomerResponse> getCustomerInGym() {
+    public CustomerResponseWithCount getCustomerInGym() {
         String token = jwtUtil.getCurrentToken(request);
 
         if(token == null) {
@@ -176,6 +177,10 @@ public class CustomerServiceImpl implements CustomerService {
 
         List<Customer> customers = customerRepository.findByPresentStatus();
         List<CustomerResponse> customerResponses = new ArrayList<>();
+        CustomerResponseWithCount customerResponsesWithCount = new CustomerResponseWithCount();
+        int count = 0;
+
+
         for(Customer customer : customers) {
             CustomerResponse customerResponse = new CustomerResponse();
             customerResponse.setCustomerId(customer.getId());
@@ -183,9 +188,12 @@ public class CustomerServiceImpl implements CustomerService {
             customerResponse.setPhoneNumber(customer.getPhoneNumber());
             customerResponse.setEmail(customer.getEmail());
             customerResponse.setStatus(customer.getStatus());
+            count++;
             customerResponses.add(customerResponse);
         }
-        return customerResponses;
+        customerResponsesWithCount.setCustomers(customerResponses);
+        customerResponsesWithCount.setCount(count);
+        return customerResponsesWithCount;
     }
 
     @Override
