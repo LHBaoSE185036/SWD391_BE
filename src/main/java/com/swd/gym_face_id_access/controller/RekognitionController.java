@@ -69,8 +69,6 @@ public class RekognitionController {
 
         try {
             CheckInResponse response = faceRecognitionService.customerCheckIn(file);
-
-            sseService.sendEvent(customerService.getCustomerInGym());
             return ResponseEntity.ok().body(ApiResponse.<CheckInResponse>builder()
                     .errorCode(null)
                     .message("success")
@@ -92,7 +90,6 @@ public class RekognitionController {
 
         try {
             CheckOutResponse response = faceRecognitionService.customerCheckOut(file);
-            sseService.sendEvent(customerService.getCustomerInGym());
             return ResponseEntity.ok().body(ApiResponse.<CheckOutResponse>builder()
                     .errorCode(null)
                     .message("success")

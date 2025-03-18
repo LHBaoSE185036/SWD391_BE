@@ -209,11 +209,7 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public CustomerResponseWithCount getCustomerInGym() {
-        String token = jwtUtil.getCurrentToken(request);
 
-        if(token == null) {
-            throw new NoTokenException("Missing JWT token");
-        }
 
         List<Customer> customers = customerRepository.findByPresentStatus();
         List<CustomerResponse> customerResponses = new ArrayList<>();
