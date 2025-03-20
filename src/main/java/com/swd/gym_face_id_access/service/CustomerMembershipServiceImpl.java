@@ -34,6 +34,8 @@ public class CustomerMembershipServiceImpl implements CustomerMembershipService{
 
     private final HttpServletRequest request;
 
+    private final CustomerServiceImpl customerServiceImpl;
+
     @Override
     public List<CustomerMembershipResponse> findActiveMemberships(int customerId) {
         List<CustomerMembership> customerMemberships = customerMembershipRepository.findActiveMemberships(customerId);
@@ -152,6 +154,9 @@ public class CustomerMembershipServiceImpl implements CustomerMembershipService{
             return "Customer is not in the gym! Please check again";
         }
         customer.setPresentStatus(false);
+
+        customerServiceImpl.notifyClients();
+
         return "Checked  out";
     }
 
