@@ -12,4 +12,7 @@ public interface CustomerMembershipRepository extends JpaRepository<CustomerMemb
     List<CustomerMembership> findActiveMemberships(@Param("customerId") int customerId);
 
     CustomerMembership findById(int id);
+
+    @Query("Select c from CustomerMembership c where c.customer.id = :customerId")
+    List<CustomerMembership> findByCustomerId(int customerId);
 }

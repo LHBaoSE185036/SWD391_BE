@@ -76,6 +76,11 @@ public class CustomerMembershipServiceImpl implements CustomerMembershipService{
             counter = membership.getTrainingDay();
         }
 
+        List<CustomerMembership> customerMemberships = customerMembershipRepository.findActiveMemberships(customerId);
+        if(!customerMemberships.isEmpty()) {
+            return "Customer already has membership that still available";
+        }
+
         endDate = startDate.plusMonths(tempTime);
 
         CustomerMembership customerMembership = new CustomerMembership();
