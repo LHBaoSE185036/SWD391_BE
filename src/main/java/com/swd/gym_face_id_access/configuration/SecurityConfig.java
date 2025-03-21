@@ -57,6 +57,7 @@ public class SecurityConfig {
                         ).permitAll()
                         .requestMatchers("gym-face-id-access/api/v1/auth/login").permitAll()
                         .requestMatchers("gym-face-id-access/api/v1/rekognition/**").permitAll()
+                        .requestMatchers("gym-face-id-access/api/v1/membership/memberships").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
