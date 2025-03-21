@@ -184,7 +184,7 @@ public class FaceRecognitionService {
             customerService.notifyClients();
 
             cr.setCheckInResult(CHECK_IN_SUCCESS);
-            cr.setMessage("Check in successfully!");
+            cr.setMessage("Welcome: " + customer.getFullName());
             cr.setIsSuccess(true);
             return cr;
 
