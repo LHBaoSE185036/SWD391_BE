@@ -142,9 +142,6 @@ public class CustomerMembershipServiceImpl implements CustomerMembershipService{
         if(token == null) {
             throw new NoTokenException("Missing JWT token");
         }
-        if(!customerMembershipRepository.existsById(customerId)) {
-            throw new MembershipNotFoundException("Membership is not found");
-        }
         if(!customerRepository.existsById(customerId)) {
             throw new CustomerNotFoundException("Customer is not found");
         }
@@ -154,10 +151,10 @@ public class CustomerMembershipServiceImpl implements CustomerMembershipService{
             return "Customer is not in the gym! Please check again";
         }
         customer.setPresentStatus(false);
-
+        customerRepository.save(customer);
         customerServiceImpl.notifyClients();
 
-        return "Checked  out";
+        return "Checked out";
     }
 
 
