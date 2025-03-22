@@ -38,6 +38,7 @@ public class MembershipServiceImpl implements MembershipService {
             membershipResponse.setTrainingDay(membership.getTrainingDay());
             membershipResponse.setDuration(membership.getDuration());
             membershipResponse.setPrice(membership.getPrice());
+            membershipResponse.setStatus(membership.getStatus());
             membershipResponse.setSlotTimeType(membership.getSlotTimeType());
             List<SlotTime> slotTimes = slotTimeRepository.findByMembershipId(membership.getId());
             List<SlotTimeResponse> slotTimeResponses = new ArrayList<>();

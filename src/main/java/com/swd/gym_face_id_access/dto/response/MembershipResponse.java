@@ -14,5 +14,6 @@ public class MembershipResponse {
     private Integer duration;
     private Integer price;
     private String slotTimeType;
+    private String status;
     private List<SlotTimeResponse> slotTimeResponses;
 }
