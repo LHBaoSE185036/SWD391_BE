@@ -31,6 +31,7 @@ public class MembershipServiceImpl implements MembershipService {
         List<MembershipResponse> membershipResponses = new ArrayList<>();
         for (Membership membership : memberships) {
             MembershipResponse membershipResponse = new MembershipResponse();
+            membershipResponse.setId(membership.getId());
             membershipResponse.setName(membership.getName());
             membershipResponse.setType(membership.getType());
             membershipResponse.setDescription(membership.getDescription());
@@ -63,6 +64,8 @@ public class MembershipServiceImpl implements MembershipService {
         for (CreateMembershipRequest.SlotTimeRequest slotTimeRequest : slotTimeRequests) {
             addSlotTime(slotTimeRequest, membership);
         }
+
+
 
         return "Added Membership Successfully";
     }
