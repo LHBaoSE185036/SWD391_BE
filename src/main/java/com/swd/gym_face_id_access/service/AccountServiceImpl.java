@@ -54,6 +54,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
+    @CacheEvict(value = "accounts", allEntries = true)
     public String register(CreateAccountRequest createAccountRequest) {
 
         String token = jwtUtil.getCurrentToken(request);
