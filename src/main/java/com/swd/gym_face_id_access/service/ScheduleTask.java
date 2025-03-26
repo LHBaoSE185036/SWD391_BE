@@ -20,7 +20,7 @@ public class ScheduleTask {
 
     private final CustomerMembershipRepository customerMembershipRepository;
 
-    @Scheduled(cron = "0 30 8 * * ?")
+    @Scheduled(cron = "0 0 8 * * ?")
     @Transactional
     public void checkOutCustomersSlotTimeA0830() {
         String slotTime = "";
