@@ -6,6 +6,7 @@ import com.swd.gym_face_id_access.exception.CustomerNotFoundException;
 import com.swd.gym_face_id_access.exception.MembershipNotFoundException;
 import com.swd.gym_face_id_access.service.CustomerMembershipService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,6 +20,7 @@ public class CustomerMembershipController {
 
     private final CustomerMembershipService customerMembershipService;
 
+    @CacheEvict(value = "customerMemberships", allEntries = true)
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<String>> register(@RequestParam("customerId") int customerId, @RequestParam("membershipId") int membershipId) {
         try{
@@ -35,7 +37,8 @@ public class CustomerMembershipController {
         }
     }
 
-    @PutMapping("/{id}")
+    @CacheEvict(value = "customerMemberships", allEntries = true)
+    @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<String>> deleteCustomerMembership(@PathVariable int id) {
         return ResponseEntity.ok().body(ApiResponse.<String>builder()
                         .errorCode(null)
