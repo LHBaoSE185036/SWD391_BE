@@ -54,6 +54,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
+    @CacheEvict(value = "accounts", allEntries = true)
     public String register(CreateAccountRequest createAccountRequest) {
 
         String token = jwtUtil.getCurrentToken(request);
@@ -79,6 +80,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
+    @CacheEvict(value = "accounts", allEntries = true)
     public String deleteAccount(int accountId) {
 
         String token = jwtUtil.getCurrentToken(request);
@@ -97,7 +99,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    @CachePut(value = "accounts", key = "accountId")
+    @CachePut(value = "account", key = "accountId")
     public AccountDetailResponse getAccount(int accountId) {
 
         String token = jwtUtil.getCurrentToken(request);
