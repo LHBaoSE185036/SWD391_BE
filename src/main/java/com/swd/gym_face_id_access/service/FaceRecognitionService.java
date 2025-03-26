@@ -142,7 +142,10 @@ public class FaceRecognitionService {
             // check if person scanned is a member
             FaceRecognitionResponse frs = findCustomerByFace(file);
             if(frs == null){
-                throw new FaceNotFoundException("Face is not recognize");
+                cr.setCheckInResult(CHECK_IN_FAILED);
+                cr.setMessage("Does not recognize member.");
+                cr.setIsSuccess(false);
+                return cr;
             }
 
             //Check if customer has already checked in (present_status = true)
@@ -268,7 +271,10 @@ public class FaceRecognitionService {
             // check if person scanned is a member
             FaceRecognitionResponse frs = findCustomerByFace(file);
             if(frs == null){
-                throw new FaceNotFoundException("Face is not recognize");
+                cr.setCheckOutResult(CHECK_OUT_FAILED);
+                cr.setMessage("Does not recognize member.");
+                cr.setIsSuccess(false);
+                return cr;
             }
             //Check if customer has already checked in (present_status = true)
             if(frs.getPresent_status()){
