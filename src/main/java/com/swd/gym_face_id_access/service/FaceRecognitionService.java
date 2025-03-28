@@ -203,21 +203,21 @@ public class FaceRecognitionService {
                 }
             }else if(membership.getSlotTimeType().equals("Khung giờ B")){
                 System.out.println("This guy is in khung gio B");
-                LocalTime startTime1 = LocalTime.of(8, 0);
-                LocalTime endTime1 = LocalTime.of(14, 0);
-
-                LocalTime startTime2 = LocalTime.of(15, 0);
-                LocalTime endTime2 = LocalTime.of(18, 0);
-
-                if ((!currentTime.isBefore(startTime1) && !currentTime.isAfter(endTime1)) || (!currentTime.isBefore(startTime2) && !currentTime.isAfter(endTime2))) {
-                    System.out.println("ok bro");
-                }
-                else{
-                    cr.setCheckInResult(CHECK_IN_FAILED);
-                    cr.setMessage("Incorrect Time Slot");
-                    cr.setIsSuccess(false);
-                    return cr;
-                }
+//                LocalTime startTime1 = LocalTime.of(8, 0);
+//                LocalTime endTime1 = LocalTime.of(14, 0);
+//
+//                LocalTime startTime2 = LocalTime.of(15, 0);
+//                LocalTime endTime2 = LocalTime.of(18, 0);
+//
+//                if ((!currentTime.isBefore(startTime1) && !currentTime.isAfter(endTime1)) || (!currentTime.isBefore(startTime2) && !currentTime.isAfter(endTime2))) {
+//                    System.out.println("ok bro");
+//                }
+//                else{
+//                    cr.setCheckInResult(CHECK_IN_FAILED);
+//                    cr.setMessage("Incorrect Time Slot");
+//                    cr.setIsSuccess(false);
+//                    return cr;
+//                }
             }else{
                 System.out.println("Sum ting wong");
                 cr.setCheckInResult(CHECK_IN_FAILED);
