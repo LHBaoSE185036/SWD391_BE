@@ -127,6 +127,7 @@ public class CustomerMembershipServiceImpl implements CustomerMembershipService{
             CustomerMembershipResponse customerMembershipResponse = new CustomerMembershipResponse();
             customerMembershipResponse.setId(cm.getId());
             customerMembershipResponse.setCustomerId(cm.getCustomer().getId());
+            customerMembershipResponse.setMembershipId(cm.getMembership().getId());
             customerMembershipResponse.setStartDate(cm.getStartDate());
             customerMembershipResponse.setEndDate(cm.getEndDate());
             customerMembershipResponse.setSessionCounter(cm.getSessionCounter());
