@@ -4,15 +4,19 @@ import com.swd.gym_face_id_access.exception.FaceNotFoundException;
 import com.swd.gym_face_id_access.model.CheckInLog;
 import com.swd.gym_face_id_access.model.Customer;
 import com.swd.gym_face_id_access.model.CustomerMembership;
+import com.swd.gym_face_id_access.model.Membership;
 import com.swd.gym_face_id_access.repository.CheckInLogRepository;
 import com.swd.gym_face_id_access.repository.CustomerMembershipRepository;
 import com.swd.gym_face_id_access.repository.CustomerRepository;
+import com.swd.gym_face_id_access.repository.MembershipRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -39,6 +43,7 @@ public class FaceRecognitionService {
     private final CustomerMembershipRepository customerMembershipRepository;
     private final CheckInLogRepository checkinLogRepository;
     private final CloudinaryService cloudinaryService;
+    private final MembershipRepository membershipRepository;
 
     private final String CHECK_IN_SUCCESS = "Success";
     private final String CHECK_IN_RETURN = "Rechecked";
@@ -137,7 +142,10 @@ public class FaceRecognitionService {
             // check if person scanned is a member
             FaceRecognitionResponse frs = findCustomerByFace(file);
             if(frs == null){
-                throw new FaceNotFoundException("Face is not recognize");
+                cr.setCheckInResult(CHECK_IN_FAILED);
+                cr.setMessage("Does not recognize member.");
+                cr.setIsSuccess(false);
+                return cr;
             }
 
             //Check if customer has already checked in (present_status = true)
@@ -164,6 +172,63 @@ public class FaceRecognitionService {
                     .orElse(null);
             // the "or else return null" is for situations where the activeCustomerMemberships is null
             // even though it can never be null, I'll still leave it there.
+
+
+            List<CustomerMembership> customerMembershipList = customerMembershipRepository.findByCustomerId(frs.getCustomerId());
+
+            System.out.println("Starting to check for membership slot time.");
+            Membership membership = new Membership();
+            for(CustomerMembership customerMembership : customerMembershipList){
+                membership = customerMembership.getMembership();
+            }
+            ZoneId zone = ZoneId.systemDefault();
+            LocalTime currentTime = LocalTime.now(zone);
+
+            if(membership.getSlotTimeType().equals("Khung giờ A")){
+                System.out.println("This guy is in khung gio A");
+                LocalTime startTime1 = LocalTime.of(5, 30);
+                LocalTime endTime1 = LocalTime.of(8, 0);
+
+                LocalTime startTime2 = LocalTime.of(18, 0);
+                LocalTime endTime2 = LocalTime.of(21, 0);
+
+                if ((!currentTime.isBefore(startTime1) && !currentTime.isAfter(endTime1)) || (!currentTime.isBefore(startTime2) && !currentTime.isAfter(endTime2))) {
+                    System.out.println("ok bro");
+                }
+                else{
+                    cr.setCheckInResult(CHECK_IN_FAILED);
+                    cr.setMessage("Incorrect Time Slot");
+                    cr.setIsSuccess(false);
+                    return cr;
+                }
+            }else if(membership.getSlotTimeType().equals("Khung giờ B")){
+                System.out.println("This guy is in khung gio B");
+                LocalTime startTime1 = LocalTime.of(8, 0);
+                LocalTime endTime1 = LocalTime.of(14, 0);
+
+                LocalTime startTime2 = LocalTime.of(15, 0);
+                LocalTime endTime2 = LocalTime.of(18, 0);
+
+                if ((!currentTime.isBefore(startTime1) && !currentTime.isAfter(endTime1)) || (!currentTime.isBefore(startTime2) && !currentTime.isAfter(endTime2))) {
+                    System.out.println("ok bro");
+                }
+                else{
+                    cr.setCheckInResult(CHECK_IN_FAILED);
+                    cr.setMessage("Incorrect Time Slot");
+                    cr.setIsSuccess(false);
+                    return cr;
+                }
+            }else{
+                System.out.println("Sum ting wong");
+                cr.setCheckInResult(CHECK_IN_FAILED);
+                cr.setMessage("Invalid Time Slot");
+                cr.setIsSuccess(false);
+                return cr;
+            }
+
+            System.out.println("Slot time validated");
+
+
 
             // Get the customer membership, lower its sessionCounter by 1, save
             CustomerMembership chosenMembership = customerMembershipRepository.findById(earliestMembership.getId());
@@ -206,7 +271,10 @@ public class FaceRecognitionService {
             // check if person scanned is a member
             FaceRecognitionResponse frs = findCustomerByFace(file);
             if(frs == null){
-                throw new FaceNotFoundException("Face is not recognize");
+                cr.setCheckOutResult(CHECK_OUT_FAILED);
+                cr.setMessage("Does not recognize member.");
+                cr.setIsSuccess(false);
+                return cr;
             }
             //Check if customer has already checked in (present_status = true)
             if(frs.getPresent_status()){
